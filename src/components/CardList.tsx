@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Card, CardProps } from "./Card";
 import styles from "./CardList.module.css";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { createPortal } from "react-dom";
+import { ModalPopup } from "./ModalPopup";
 
 const CardList = () => {
   const [cards, setCards] = useState([]);
@@ -22,39 +24,67 @@ const CardList = () => {
     setCards(_arr);
   };
 
-  return (
-    <DragDropContext onDragEnd={dragEnded}>
-      <Droppable droppableId="drag-wrapper">
-        {(provided) => (
-          <div
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            className={styles.root}
-          >
-            {cards.map((card: CardProps, index) => (
-              <Draggable
-                draggableId={card.title}
-                key={card.title}
-                index={index}
-              >
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    className={styles.flexItem}
-                  >
-                    <Card {...card} />
-                  </div>
-                )}
-              </Draggable>
-            ))}
+  const [modalData, setModalData] = useState({
+    open: false,
+    heading: "",
+  });
 
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+  const showModal = (_card: CardProps) => {
+    setModalData({
+      open: true,
+      heading: _card.title,
+    });
+  };
+
+  const closeModal = () => {
+    setModalData((prevState) => {
+      return {
+        ...prevState,
+        open: false,
+        body: null,
+      };
+    });
+  };
+
+  const body = document.querySelector("body");
+  return (
+    <>
+      <DragDropContext onDragEnd={dragEnded}>
+        <Droppable droppableId="drag-wrapper">
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className={styles.root}
+            >
+              {cards.map((card: CardProps, index) => (
+                <Draggable
+                  draggableId={card.title}
+                  key={card.title}
+                  index={index}
+                >
+                  {(provided) => (
+                    <div
+                      onClick={() => showModal(card)}
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className={styles.flexItem}
+                    >
+                      <Card {...card} />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+      {body &&
+        createPortal(<ModalPopup onClose={closeModal} {...modalData} />, body)}
+    </>
   );
 };
 
