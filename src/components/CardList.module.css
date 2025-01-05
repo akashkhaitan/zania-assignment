@@ -1,0 +1,11 @@
+.root {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  row-gap: 1em;
+}
+
+.flexItem {
+  flex: 1 1 calc(33.333% - 20px);
+}
