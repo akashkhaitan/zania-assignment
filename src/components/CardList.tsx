@@ -12,8 +12,18 @@ const CardList = () => {
       .then((data) => setCards(data));
   }, []);
 
+  const dragEnded = (param: any) => {
+    const { source, destination } = param;
+    const _arr = [...cards];
+    //extracting the source item from the list
+    const _item = _arr.splice(source.index, 1)[0];
+    //inserting it at the destination index.
+    _arr.splice(destination.index, 0, _item);
+    setCards(_arr);
+  };
+
   return (
-    <DragDropContext onDragEnd={() => {}}>
+    <DragDropContext onDragEnd={dragEnded}>
       <Droppable droppableId="drag-wrapper">
         {(provided) => (
           <div
@@ -39,6 +49,7 @@ const CardList = () => {
                 )}
               </Draggable>
             ))}
+
             {provided.placeholder}
           </div>
         )}
